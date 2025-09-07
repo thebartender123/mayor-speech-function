@@ -1,10 +1,4 @@
 {
   "name": "mayor-speech-generator",
-  "version": "1.0.0",
-  "scripts": {
-    "dev": "vercel dev",
-    "build": "vercel build"
-  },
-  "dependencies": {},
-  "devDependencies": {}
+  "version": "1.0.0"
 }
