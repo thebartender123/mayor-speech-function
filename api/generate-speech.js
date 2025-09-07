@@ -4,19 +4,34 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
- // Handle both string and array formats
-  let prioritiesArray;
-  if (typeof priorities === 'string') {
-    // Split string by common delimiters
-    prioritiesArray = priorities.split(/[,;]+/).map(p => p.trim()).filter(p => p);
-  } else if (Array.isArray(priorities)) {
-    prioritiesArray = priorities;
-  } else {
-    return res.status(400).json({ error: 'Invalid priorities data' });
-  }
+  try {
+    let priorities;
+    
+    // Handle both JSON and form-encoded data
+    if (req.headers['content-type']?.includes('application/json')) {
+      // JSON format
+      priorities = req.body.priorities;
+    } else {
+      // Form-encoded format
+      priorities = req.body.priorities;
+      // If it's a string, split by comma
+      if (typeof priorities === 'string') {
+        priorities = priorities.split(',').map(p => p.trim());
+      }
+    }
+    
+    // Validate input
+    if (!priorities || (Array.isArray(priorities) && priorities.length === 0)) {
+      return res.status(400).json({ error: 'No priorities provided' });
+    }
+    
+    // Convert to array if it's not already
+    if (!Array.isArray(priorities)) {
+      priorities = [priorities];
+    }
 
-  // Prepare the prompt
-  const prioritiesText = prioritiesArray.join('; ');
+    // Prepare the prompt
+    const prioritiesText = priorities.join('; ');
     const prompt = `You are a speech writer for a mayor who just learned that he needs to get ready to host newly incoming refugees. Draft the first paragraph (about 75 words) of a speech. The mayor wants to emphasize these aspects: ${prioritiesText}. Return a JSON with 'speech' as the sole tag.`;
 
     // Call OpenAI API
@@ -27,13 +42,12 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: "gpt-5-nano",
         messages: [{
           role: "user",
           content: prompt
         }],
-        max_tokens: 200,
-        temperature: 0.7
+        temperature: 0.2
       })
     });
 
