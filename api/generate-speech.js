@@ -34,6 +34,10 @@ export default async function handler(req, res) {
     const prioritiesText = priorities.join('; ');
     const prompt = `You are a speech writer for a mayor who just learned that he needs to get ready to host newly incoming refugees. Draft the first paragraph (about 75 words) of a speech. The mayor wants to emphasize these aspects: ${prioritiesText}. Return a JSON with 'speech' as the sole tag.`;
 
+console.log('About to call OpenAI with prompt:', prompt);
+console.log('Priorities text:', prioritiesText);
+
+    
     // Call OpenAI API
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -50,6 +54,14 @@ export default async function handler(req, res) {
         temperature: 0.2
       })
     });
+
+    // Right after the OpenAI call, add:
+console.log('OpenAI response status:', openaiResponse.status);
+if (!openaiResponse.ok) {
+  const errorText = await openaiResponse.text();
+  console.log('OpenAI error:', errorText);
+  throw new Error(`OpenAI API error: ${openaiResponse.status} - ${errorText}`);
+}
 
     if (!openaiResponse.ok) {
       throw new Error(`OpenAI API error: ${openaiResponse.status}`);
