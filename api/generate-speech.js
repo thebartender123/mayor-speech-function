@@ -51,7 +51,10 @@ console.log('Priorities text:', prioritiesText);
           role: "user",
           content: prompt
         }],
-        temperature: 1.0
+        temperature: 1.0,
+            reasoning_effort: "minimal", // <-- new
+    verbosity: "low"            // <-- new
+
       })
     });
 
