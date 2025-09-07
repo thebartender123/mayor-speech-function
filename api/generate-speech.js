@@ -5,11 +5,29 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { priorities } = req.body;
+    let priorities;
+    
+    // Handle both JSON and form-encoded data
+    if (req.headers['content-type']?.includes('application/json')) {
+      // JSON format
+      priorities = req.body.priorities;
+    } else {
+      // Form-encoded format
+      priorities = req.body.priorities;
+      // If it's a string, split by comma
+      if (typeof priorities === 'string') {
+        priorities = priorities.split(',').map(p => p.trim());
+      }
+    }
     
     // Validate input
-    if (!priorities || !Array.isArray(priorities)) {
-      return res.status(400).json({ error: 'Invalid priorities data' });
+    if (!priorities || (Array.isArray(priorities) && priorities.length === 0)) {
+      return res.status(400).json({ error: 'No priorities provided' });
+    }
+    
+    // Convert to array if it's not already
+    if (!Array.isArray(priorities)) {
+      priorities = [priorities];
     }
 
     // Prepare the prompt
@@ -24,11 +42,12 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: "gpt-5-nano",
+        model: "gpt-3.5-turbo",
         messages: [{
           role: "user",
           content: prompt
         }],
+        max_tokens: 200,
         temperature: 0.7
       })
     });
