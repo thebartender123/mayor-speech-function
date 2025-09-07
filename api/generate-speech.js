@@ -51,7 +51,7 @@ console.log('Priorities text:', prioritiesText);
           role: "user",
           content: prompt
         }],
-        temperature: 0.2
+        temperature: 1.0
       })
     });
 
